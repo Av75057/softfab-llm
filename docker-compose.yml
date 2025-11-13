@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  vllm:
+    image: vllm/vllm-openai:v0.11.0
+    container_name: vllm-qwen25-32b
+    command: >
+      --model Qwen/Qwen2.5-32B-Instruct
+      --served-model-name qwen2.5-32b
+      --tensor-parallel-size 4
+      --max-model-len 16384
+      --gpu-memory-utilization 0.85
+      --swap-space 8
+      --enforce-eager
+      --max-num-seqs 8
+    environment:
+      - VLLM_USE_V1=1
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./cache/hf:/root/.cache/huggingface
+      - ./cache/vllm:/root/.cache/vllm
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+
+  api:
+    build: .
+    container_name: softfab-llm-api
+    environment:
+      - VLLM_URL=http://vllm:8000/v1
+      - API_KEY=local-secret-key
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/logs
+    depends_on:
+      - vllm
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    ports:
+      - "3000:8080"
+    environment:
+      # Базовый URL до твоего SoftFab-API (OpenAI совместимый)
+      - OPENAI_API_BASE_URL=http://api:8000/v1
+      # API-ключ, который SoftFab API будет ждать (должен совпадать с API_KEY выше)
+      - OPENAI_API_KEY=local-secret-key
+      # включаем режим "local auth" — логины внутри WebUI
+      - WEBUI_AUTH=True
+      # можно сразу разрешить регистрацию
+      - WEBUI_ALLOW_REGISTRATION=True
+      # дефолтный провайдер OpenAI
+      - DEFAULT_PROVIDER=openai
+    volumes:
+      - ./webui-data:/app/backend/data
+    depends_on:
+      - api
+

@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Виртуальное окружение
+.venv/
+
+# Логи и временные данные
+logs/
+cache/
+webui-data/
+
+# Docker артефакты
+*.log
+
+# IDE
+.vscode/
+.idea/
