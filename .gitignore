@@ -4,6 +4,7 @@ __pycache__/
 
 # Виртуальное окружение
 .venv/
+venv/
 
 # Логи и временные данные
 logs/
@@ -16,3 +17,18 @@ webui-data/
 # IDE
 .vscode/
 .idea/
+# caches / envs
+
+# logs / data
+data/
+tmp/
+
+# model caches (часто у вас так)
+models/
+hf-cache/
+vllm-cache/
+.cache/
+**/.cache/
+
+# node
+node_modules/
