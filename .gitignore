@@ -10,6 +10,9 @@ venv/
 logs/
 cache/
 webui-data/
+open-webui-data/
+qdrant_storage/
+.git/
 
 # Docker артефакты
 *.log
