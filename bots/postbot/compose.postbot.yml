@@ -1,0 +1,14 @@
+services:
+  postbot:
+    build:
+      context: .
+      network: host
+    network_mode: host
+    env_file:
+      - .env
+    volumes:
+      - postbot_data:/data
+    restart: unless-stopped
+
+volumes:
+  postbot_data:

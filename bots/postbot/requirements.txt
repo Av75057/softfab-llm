@@ -1,0 +1,4 @@
+aiogram>=3.4,<4.0
+openai>=1.6,<2.0
+python-dotenv>=1.0,<2.0
+pytest>=7.4,<8.0
