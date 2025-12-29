@@ -1,0 +1,43 @@
+# secrets
+.env
+*.env
+.env.*
+!*.env.example
+!*.env.template
+
+# logs / runtime
+logs/
+*.log
+*.jsonl
+tmp/
+cache/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# docker local
+**/data/
+**/volumes/
+**/.docker/
+Dockerfile.*.bak
+docker-compose.*.bak
+
+# huggingface / torch caches (часто гигабайты)
+hf-cache/
+models/
+model/
+checkpoints/
+weights/
+**/.cache/huggingface/
+**/.cache/torch/
+**/.cache/pip/
+
+# node
+node_modules/
+dist/
+build/

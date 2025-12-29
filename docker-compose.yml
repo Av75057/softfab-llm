@@ -1,0 +1,102 @@
+
+
+version: "3.9"
+
+services:
+
+  vllm-qwen3next-80b-a3b-instruct:
+    image: vllm/vllm-openai:v0.11.0
+    container_name: vllm-qwen3next-80b-a3b-instruct
+    restart: unless-stopped
+
+    gpus: all
+    ipc: host
+    shm_size: "16gb"
+
+    ports:
+      - "8005:8000"
+
+    environment:
+      HF_HOME: /models/hf
+      HF_TOKEN: ${HF_TOKEN}
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      HF_HUB_DISABLE_XET: "1"
+      HF_HUB_ENABLE_HF_TRANSFER: "0"
+      HF_HUB_DOWNLOAD_TIMEOUT: "600"
+      HF_HUB_ETAG_TIMEOUT: "30"
+      PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"
+      NCCL_P2P_DISABLE: "1"
+      NCCL_IB_DISABLE: "1"
+      NCCL_ASYNC_ERROR_HANDLING: "1"
+      TORCH_NCCL_ASYNC_ERROR_HANDLING: "1"
+
+    volumes:
+      - /models/hf:/models/hf
+
+    command: >
+      --model Qwen/Qwen3-Next-80B-A3B-Instruct-FP8
+      --served-model-name qwen3next-80b-a3b-instruct
+      --host 0.0.0.0 --port 8000
+      --tensor-parallel-size 4
+      --gpu-memory-utilization 0.90
+      --max-model-len 102500
+      --max-num-seqs 32
+      --enforce-eager
+      --compilation_config.cudagraph_mode=NONE
+      --disable-custom-all-reduce
+      --trust-remote-code
+
+  softfab-llm-api:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: softfab-llm-softfab-llm-api
+    container_name: softfab-llm-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - VLLM_URL=http://vllm-qwen3next-80b-a3b-instruct:8000/v1
+      - VLLM_MODEL=qwen3next-80b-a3b-instruct 
+      - API_KEY=${API_KEY:-local-llm}  # <-- Защита через API-ключ
+      - OPENAI_API_KEY=local-llm
+      - VLLM_API_KEY=local-llm
+    depends_on:
+      - vllm-qwen3next-80b-a3b-instruct
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+#####
+#  open-webui:
+#    image: ghcr.io/open-webui/open-webui:main
+#    container_name: open-webui
+#    restart: unless-stopped
+#    ports:
+#      - "3000:8080"
+#    volumes:
+#      - /var/lib/docker/volumes/softfab-llm_open-webui-data/_data:/app/backend/data
+#    depends_on:
+#      - softfab-llm-api
+
+#volumes:
+#  softfab-llm_openwebui-data:
+#    external: true
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - softfab-llm-api
+
+volumes:
+  open-webui-data:
