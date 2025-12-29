@@ -1,0 +1,17 @@
+.git
+.env
+secrets
+logs
+*.jsonl
+.Trash-*
+open-webui-data
+webui-data
+qdrant_storage
+prog1
+**/.venv
+**/__pycache__
+bots/postbot/*.db
+bots/postbot/wheels
+cache
+models
+hf-cache

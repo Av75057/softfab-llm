@@ -3,41 +3,23 @@
 *.env
 .env.*
 !*.env.example
-!*.env.template
+secrets/
 
-# logs / runtime
+# local runtime / data
+.Trash-*/
+open-webui-data/
+webui-data/
+qdrant_storage/
 logs/
-*.log
 *.jsonl
-tmp/
-cache/
 
 # python
 __pycache__/
 *.pyc
 .venv/
-venv/
-*.egg-info/
-.pytest_cache/
+**/.venv/
+prog1/
 
-# docker local
-**/data/
-**/volumes/
-**/.docker/
-Dockerfile.*.bak
-docker-compose.*.bak
-
-# huggingface / torch caches (часто гигабайты)
-hf-cache/
-models/
-model/
-checkpoints/
-weights/
-**/.cache/huggingface/
-**/.cache/torch/
-**/.cache/pip/
-
-# node
-node_modules/
-dist/
-build/
+# bots local artifacts
+bots/postbot/*.db
+bots/postbot/wheels/
